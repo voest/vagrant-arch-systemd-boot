@@ -1,0 +1,10 @@
+# -*- mode: zsh -*-
+# vi: set ft=zsh :
+
+alias diff="command diff --color=auto"
+alias ip="command ip -c"
+alias ncdu="command ncdu --color dark"
+alias sudoe='command sudo -s -E'
+alias sudoi='command sudo -i'
+alias vi='command vim'
+alias watch="command watch -c"
