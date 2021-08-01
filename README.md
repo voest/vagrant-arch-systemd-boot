@@ -21,3 +21,7 @@ A simple [Vagrant](https://www.vagrantup.com/) configuration for creating a [Arc
 1. Stop the virtual machine with `vagrant halt`
 1. Boot it up again with `vagrant up`
 1. Destroy it with `vagrant destroy`
+
+## Additional BIOS virtual machine
+
+There is an optional `arch-bios` virtual machine. Just enable it in the [Vagrantfile](Vagrantfile).
