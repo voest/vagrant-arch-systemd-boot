@@ -11,7 +11,7 @@ echo "------------"
 cp /vagrant/assets/pacman.conf /etc/pacman.conf
 [[ "${setup}" == "noefi" ]] && sed -i "s/IgnorePkg/#&/" /etc/pacman.conf
 pacman --noconfirm -Sy
-pacman --noconfirm -S dosfstools git grml-zsh-config jq man-db ncdu parted vim zsh
+pacman --noconfirm -S dosfstools efibootmgr git grml-zsh-config jq man-db ncdu parted vim zsh
 
 # Upgrade all packages
 pacman --noconfirm -Su
@@ -45,7 +45,17 @@ if [[ "${setup}" == "efi" ]]; then
 
   # Setup systemd-boot
   bootctl install
+  sed -i 's/#timeout/timeout/g' /efi/loader/loader.conf
+  # a) kernel-install
+  mkdir -p "/efi/$(cat /etc/machine-id)"
   kernel-install add "$(uname -r)" /boot/vmlinuz-linux
+  # b) unified kernel image
+  cp /proc/cmdline /etc/kernel/cmdline
+  cp /vagrant/assets/linux-efi.preset /etc/mkinitcpio.d/linux.preset
+  mkinitcpio -p linux
+  # Remove grub
+  pacman -R grub
+  rm -r /boot/grub
   echo "-----------------------------------------------------------------------"
   echo "systemd-boot setup completed"
   echo "Run 'vagrant reload' to continue"
