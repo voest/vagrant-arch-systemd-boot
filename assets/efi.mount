@@ -2,7 +2,7 @@
 Description=EFI System Partition
 
 [Mount]
-What=/dev/sdb1
+What=LABEL=EFI
 Where=/efi
 Type=vfat
 Options=rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8

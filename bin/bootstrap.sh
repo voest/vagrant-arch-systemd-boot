@@ -23,6 +23,10 @@ chsh -s /usr/bin/zsh vagrant
 cp /vagrant/assets/eth0.network /etc/systemd/network/eth0.network
 systemctl restart systemd-networkd.service
 
+# Enable accounting
+cp -r /vagrant/system.conf.d /etc/systemd/
+systemctl daemon-reload
+
 # Setup ESP
 if [[ "${setup}" == "efi" ]]; then
   if ! parted /dev/sdb mktable gpt --script; then
@@ -37,8 +41,9 @@ if [[ "${setup}" == "efi" ]]; then
   parted /dev/sdb set 1 esp on --script
   # Ugly sleep since the partition is not immediately ready
   sleep 2
-  mkfs.fat -F32 /dev/sdb1
+  mkfs.fat -F32 -n EFI /dev/sdb1
   # systemd-gpt-auto-generator does not work here because the rootfs is on another disk
+  # device will be /dev/sda1 after the reboot
   cp /vagrant/assets/efi.mount /etc/systemd/system/efi.mount
   systemctl daemon-reload
   systemctl enable --now efi.mount
@@ -47,14 +52,14 @@ if [[ "${setup}" == "efi" ]]; then
   bootctl install
   sed -i 's/#timeout/timeout/g' /efi/loader/loader.conf
   # a) kernel-install
-  mkdir -p "/efi/$(cat /etc/machine-id)"
-  kernel-install add "$(uname -r)" /boot/vmlinuz-linux
+  # mkdir -p "/efi/$(cat /etc/machine-id)"
+  # kernel-install add "$(uname -r)" /boot/vmlinuz-linux
   # b) unified kernel image
   cp /proc/cmdline /etc/kernel/cmdline
   cp /vagrant/assets/linux-efi.preset /etc/mkinitcpio.d/linux.preset
   mkinitcpio -p linux
   # Remove grub
-  pacman -R grub
+  pacman -Rns --noconfirm grub
   rm -r /boot/grub
   echo "-----------------------------------------------------------------------"
   echo "systemd-boot setup completed"
